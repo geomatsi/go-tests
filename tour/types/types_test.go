@@ -113,3 +113,71 @@ func TestArrays(t *testing.T) {
 		t.Errorf("should be dynamically sized slice: %v -> %v -> %v", s3, len(s3), cap(s3))
 	}
 }
+
+func TestArrays2D(t *testing.T) {
+	// 2D: slice of slices
+	field := [][]int{
+		[]int{1, 2, 3},
+		[]int{4, 5, 6},
+		[]int{7, 8, 9},
+	}
+
+	if field[0][0] != 1 {
+		t.Errorf("hmmm... incorrect 2d array addressing: %v != 0", field[0][0])
+	}
+
+	if field[1][1] != 5 {
+		t.Errorf("hmmm... incorrect 2d array addressing: %v != 5", field[0][0])
+	}
+
+	if field[1][2] != 6 {
+		t.Errorf("hmmm... incorrect 2d array addressing: %v != 6", field[0][0])
+	}
+}
+
+func TestAppend(t *testing.T) {
+	var s []int
+
+	if len(s) != 0 {
+		t.Errorf("hmmm... nil slice length is non-zero: %v", len(s))
+	}
+
+	s = append(s, 0)
+	if len(s) != 1 || s[0] != 0 {
+		t.Errorf("hmmm... incorrect slice length and values: %v -> %v", len(s), s)
+	}
+
+	s = append(s, 1)
+	if len(s) != 2 || s[1] != 1 {
+		t.Errorf("hmmm... incorrect slice length and values: %v -> %v", len(s), s)
+	}
+
+	s = append(s, 2, 3, 4)
+	if len(s) != 5 || s[4] != 4 {
+		t.Errorf("hmmm... incorrect slice length and values: %v -> %v", len(s), s)
+	}
+}
+
+func TestRange(t *testing.T) {
+	var pow = []int{0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100}
+
+	for i, v := range pow {
+		if v != i*i {
+			t.Errorf("hmmm... pow[%v] = %v != %v*%v == %v", i, v, i, i, i*i)
+		}
+	}
+
+	// dynamic allocation
+	grid := make([][]int, 5)
+
+	for i := range grid {
+		grid[i] = make([]int, 10)
+		for j := range grid[i] {
+			grid[i][j] = i + j
+		}
+	}
+
+	if grid[1][2] != 3 {
+		t.Errorf("hmmm... incorrect 2d grid value: %v != 3", grid[1][2])
+	}
+}
