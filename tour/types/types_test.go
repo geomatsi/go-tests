@@ -5,6 +5,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -179,5 +180,60 @@ func TestRange(t *testing.T) {
 
 	if grid[1][2] != 3 {
 		t.Errorf("hmmm... incorrect 2d grid value: %v != 3", grid[1][2])
+	}
+}
+
+type Vertex struct {
+	Lat, Long float64
+}
+
+func TestMaps(t *testing.T) {
+	tm := make(map[string]Vertex)
+
+	_, ok := tm["Bell Labs"]
+	if ok != false {
+		t.Errorf("hmmm... unexpected map value: %v", tm["test"])
+	}
+
+	tm["Bell Labs"] = Vertex{
+		40.68433, -74.39967,
+	}
+
+	v, ok := tm["Bell Labs"]
+
+	if ok != true {
+		t.Errorf("hmmm... missing map value for key %v", "Bell Labls")
+	}
+
+	if v.Lat != 40.68433 || v.Long != -74.39967 {
+		t.Errorf("hmmm... unexpected map value %v", v)
+	}
+
+	delete(tm, "Bell Labs")
+	_, ok = tm["Bell Labs"]
+	if ok != false {
+		t.Errorf("hmmm... unexpected map value: %v", tm["test"])
+	}
+}
+
+func WordCount(s string) map[string]int {
+	m := make(map[string]int)
+
+	for _, w := range strings.Fields(s) {
+		m[w] += 1
+	}
+
+	return m
+}
+
+func TestWordCount(t *testing.T) {
+	m := WordCount("hello world")
+	if m["hello"] != 1 || m["world"] != 1 {
+		t.Errorf("hmmm... unexpected word count: %v", m)
+	}
+
+	m = WordCount("a b c a b a")
+	if m["a"] != 3 || m["b"] != 2 || m["c"] != 1 {
+		t.Errorf("hmmm... unexpected word count: %v", m)
 	}
 }
