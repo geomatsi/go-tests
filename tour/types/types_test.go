@@ -237,3 +237,50 @@ func TestWordCount(t *testing.T) {
 		t.Errorf("hmmm... unexpected word count: %v", m)
 	}
 }
+
+// fibonacci is a function that returns a function that returns an int
+func fibonacci() func() int {
+	f1, f2 := 0, 1
+	return func() int {
+		f1, f2 = f2, f1+f2
+		return f1
+	}
+}
+
+func adder() func(int) int {
+	sum := 0
+	return func(x int) int {
+		sum += x
+		return sum
+	}
+}
+
+func TestFibClosure(t *testing.T) {
+	fib := []int{1, 1, 2, 3, 5, 8, 13, 21, 34, 55}
+	f := fibonacci()
+
+	for _, v := range fib {
+		if a, e := f(), v; a != e {
+			t.Errorf("hmmm... unexpected fibonacci number: %v != %v", a, e)
+		}
+	}
+
+	one := []int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+	g := adder()
+
+	for i, v := range one {
+		if a, e := g(v), i+1; a != e {
+			t.Errorf("hmmm... unexpected sum: %v != %v", a, e)
+		}
+	}
+
+	inc := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	h := adder()
+
+	for i, v := range inc {
+		if a, e := h(v), (i+1)*(i+2)/2; a != e {
+			t.Errorf("hmmm... unexpected sum: %v != %v", a, e)
+		}
+	}
+
+}
