@@ -89,3 +89,35 @@ func TestDominantIndex(t *testing.T) {
 	assert.Equal(t, dominantIndex([]int{1, 3, 1, 7}), 3)
 
 }
+
+func plusOne(digits []int) []int {
+	r := len(digits)
+	z := 0
+
+	digits[r-1]++
+
+	for i := r - 1; i >= 0; i-- {
+		digits[i] += z
+		if digits[i] >= 10 {
+			digits[i] -= 10
+			z = 1
+		} else {
+			z = 0
+			break
+		}
+	}
+
+	if z == 1 {
+		digits = append([]int{1}, digits...)
+	}
+
+	return digits
+}
+
+func TestPlusOne(t *testing.T) {
+	assert.Equal(t, plusOne([]int{1, 2, 3}), []int{1, 2, 4})
+	assert.Equal(t, plusOne([]int{0}), []int{1})
+	assert.Equal(t, plusOne([]int{9}), []int{1, 0})
+	assert.Equal(t, plusOne([]int{9, 9, 9}), []int{1, 0, 0, 0})
+	assert.Equal(t, plusOne([]int{4, 3, 3, 1}), []int{4, 3, 3, 2})
+}
