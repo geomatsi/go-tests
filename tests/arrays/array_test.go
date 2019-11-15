@@ -44,3 +44,48 @@ func TestPivotIndex(t *testing.T) {
 	assert.Equal(t, pivotIndex([]int{1, 2, 3}), -1)
 	assert.Equal(t, pivotIndex([]int{1, 2, 3, 4}), -1)
 }
+
+// Assumptions:
+// - nums will have a length in the range [1, 50]
+// - every nums[i] will be an integer in the range [0, 99]
+func dominantIndex(nums []int) int {
+	var p1, v2 int
+
+	switch {
+	case len(nums) == 0:
+		return -1
+	case len(nums) == 1:
+		return 0
+	}
+
+	for idx, val := range nums[1:] {
+		if val > nums[p1] {
+			if nums[p1] > v2 {
+				v2 = nums[p1]
+			}
+
+			p1 = idx + 1
+		} else if val > v2 {
+			v2 = val
+		}
+	}
+
+	if 2*v2 <= nums[p1] {
+		return p1
+	}
+
+	return -1
+}
+
+func TestDominantIndex(t *testing.T) {
+	assert.Equal(t, dominantIndex([]int{}), -1)
+	assert.Equal(t, dominantIndex([]int{2, 3}), -1)
+	assert.Equal(t, dominantIndex([]int{3, 2, 1, 0}), -1)
+	assert.Equal(t, dominantIndex([]int{3, 3, 1, 5}), -1)
+	assert.Equal(t, dominantIndex([]int{1}), 0)
+	assert.Equal(t, dominantIndex([]int{1, 2}), 1)
+	assert.Equal(t, dominantIndex([]int{3, 6, 1, 0}), 1)
+	assert.Equal(t, dominantIndex([]int{6, 3, 1, 0}), 0)
+	assert.Equal(t, dominantIndex([]int{1, 3, 1, 7}), 3)
+
+}
