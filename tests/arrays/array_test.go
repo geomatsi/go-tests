@@ -121,3 +121,43 @@ func TestPlusOne(t *testing.T) {
 	assert.Equal(t, plusOne([]int{9, 9, 9}), []int{1, 0, 0, 0})
 	assert.Equal(t, plusOne([]int{4, 3, 3, 1}), []int{4, 3, 3, 2})
 }
+
+func findDiagonalOrder(matrix [][]int) []int {
+	n := len(matrix)
+	if n == 0 {
+		return []int{}
+	}
+
+	m := len(matrix[0])
+	if m == 0 {
+		return []int{}
+	}
+
+	res, ind := make([]int, n*m), 0
+
+	for k := 0; k < (n + m - 1); k++ {
+		for i := 0; i < (k + 1); i++ {
+			if k%2 == 0 {
+				if i < m && (k-i) < n {
+					res[ind], ind = matrix[k-i][i], ind+1
+				}
+			} else if i < n && (k-i) < m {
+				res[ind], ind = matrix[i][k-i], ind+1
+			}
+		}
+	}
+
+	return res
+}
+
+func TestFindDiagOrder(t *testing.T) {
+	assert.Equal(t, findDiagonalOrder([][]int{}), []int{})
+	assert.Equal(t, findDiagonalOrder([][]int{{}}), []int{})
+	assert.Equal(t, findDiagonalOrder([][]int{{}, {}}), []int{})
+	assert.Equal(t, findDiagonalOrder([][]int{{1}}), []int{1})
+	assert.Equal(t, findDiagonalOrder([][]int{{1, 2}}), []int{1, 2})
+	assert.Equal(t, findDiagonalOrder([][]int{{1, 2, 3, 4}}), []int{1, 2, 3, 4})
+	assert.Equal(t, findDiagonalOrder([][]int{{1}, {2}, {3}, {4}}), []int{1, 2, 3, 4})
+	assert.Equal(t, findDiagonalOrder([][]int{{1, 2}, {3, 4}}), []int{1, 2, 3, 4})
+	assert.Equal(t, findDiagonalOrder([][]int{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}), []int{1, 2, 4, 7, 5, 3, 6, 8, 9})
+}
