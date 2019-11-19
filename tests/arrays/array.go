@@ -118,3 +118,57 @@ func findDiagonalOrder(matrix [][]int) []int {
 
 	return res
 }
+
+func spiralOrder(matrix [][]int) []int {
+	n := len(matrix)
+	if n == 0 {
+		return []int{}
+	}
+
+	m := len(matrix[0])
+	if m == 0 {
+		return []int{}
+	}
+
+	res, ind := make([]int, n*m), 0
+
+	i1, i2, j1, j2 := 0, m-1, 0, n-1
+
+	for {
+		if i1 > i2 {
+			break
+		}
+
+		for s := i1; s <= i2; s++ {
+			res[ind], ind = matrix[j1][s], ind+1
+		}
+
+		if (j1 + 1) > j2 {
+			break
+		}
+
+		for s := j1 + 1; s <= j2; s++ {
+			res[ind], ind = matrix[s][i2], ind+1
+		}
+
+		if i1 == i2 {
+			break
+		}
+
+		for s := i2 - 1; s >= i1; s-- {
+			res[ind], ind = matrix[j2][s], ind+1
+		}
+
+		if (j1 + 1) == j2 {
+			break
+		}
+
+		for s := (j2 - 1); s > j1; s-- {
+			res[ind], ind = matrix[s][i1], ind+1
+		}
+
+		i1, i2, j1, j2 = i1+1, i2-1, j1+1, j2-1
+	}
+
+	return res
+}
