@@ -67,3 +67,14 @@ func TestSpiralOrder(t *testing.T) {
 	assert.Equal(t, spiralOrder([][]int{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}), []int{1, 2, 3, 6, 9, 8, 7, 4, 5})
 	assert.Equal(t, spiralOrder([][]int{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}), []int{1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7})
 }
+
+func TestPascalTriangle(t *testing.T) {
+	assert.Equal(t, generate(0), [][]int{})
+	assert.Equal(t, generate(1), [][]int{{1}})
+	assert.Equal(t, generate(2), [][]int{{1}, {1, 1}})
+	assert.Equal(t, generate(3), [][]int{{1}, {1, 1}, {1, 2, 1}})
+	assert.Equal(t, generate(4), [][]int{{1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}})
+	assert.Equal(t, generate(5), [][]int{{1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}})
+	assert.Equal(t, generate(6), [][]int{{1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}, {1, 5, 10, 10, 5, 1}})
+	assert.Equal(t, generate(7), [][]int{{1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}, {1, 5, 10, 10, 5, 1}, {1, 6, 15, 20, 15, 6, 1}})
+}
