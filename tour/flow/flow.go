@@ -10,7 +10,7 @@ import (
 	"runtime"
 )
 
-func sqrt_approx(x float64) (float64, int) {
+func sqrtApprox(x float64) (float64, int) {
 
 	i := 0
 	z1 := 1.0
@@ -70,7 +70,7 @@ func main() {
 	fmt.Println(t2)
 
 	for i := 0; i < 20; i++ {
-		v, n := sqrt_approx(float64(i))
+		v, n := sqrtApprox(float64(i))
 		fmt.Printf("sqrt(%v) = %v, %v iterations\n", i, v, n)
 	}
 }

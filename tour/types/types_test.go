@@ -42,7 +42,7 @@ func TestStructs(t *testing.T) {
 		t.Errorf("unexpected struct fields: (%v, %v) != (4, 2)", s.x, s.y)
 	}
 
-	s.x += 1
+	s.x++
 
 	if s.x != 5 || s.y != 2 {
 		t.Errorf("unexpected struct fields: (%v, %v) != (5, 2)", s.x, s.y)
@@ -220,7 +220,7 @@ func WordCount(s string) map[string]int {
 	m := make(map[string]int)
 
 	for _, w := range strings.Fields(s) {
-		m[w] += 1
+		m[w]++
 	}
 
 	return m
