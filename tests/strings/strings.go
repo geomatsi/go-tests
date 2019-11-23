@@ -98,3 +98,25 @@ func strStr(haystack string, needle string) int {
 
 	return -1
 }
+
+func longestCommonPrefix(strs []string) string {
+	res := ""
+
+	if len(strs) == 0 {
+		return res
+	}
+
+	xs := strs[0]
+	for n := 1; n <= len(xs); n++ {
+		prefix := xs[0:n]
+		for _, s := range strs {
+			if len(s) < n || xs[n-1:n] != s[n-1:n] {
+				return res
+			}
+		}
+
+		res = prefix
+	}
+
+	return res
+}
