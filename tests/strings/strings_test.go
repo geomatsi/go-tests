@@ -40,3 +40,29 @@ func TestLongestCommonPrefix(t *testing.T) {
 	assert.Equal(t, longestCommonPrefix([]string{"abcd", "abcdabcd", "abcdabcdabcd"}), "abcd")
 	assert.Equal(t, longestCommonPrefix([]string{"axxxxxx", "ayyyyyyy", "abcd"}), "a")
 }
+
+func TestReverseString(t *testing.T) {
+	s := []byte{}
+	reverseString(s)
+	assert.Equal(t, s, []byte{})
+
+	s = []byte{'a'}
+	reverseString(s)
+	assert.Equal(t, s, []byte{'a'})
+
+	s = []byte{'a', 'b'}
+	reverseString(s)
+	assert.Equal(t, s, []byte{'b', 'a'})
+
+	s = []byte{'a', 'b', 'c'}
+	reverseString(s)
+	assert.Equal(t, s, []byte{'c', 'b', 'a'})
+
+	s = []byte{'a', 'b', 'c', 'd'}
+	reverseString(s)
+	assert.Equal(t, s, []byte{'d', 'c', 'b', 'a'})
+
+	s = []byte{'h', 'e', 'l', 'l', 'o'}
+	reverseString(s)
+	assert.Equal(t, s, []byte{'o', 'l', 'l', 'e', 'h'})
+}

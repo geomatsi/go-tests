@@ -120,3 +120,18 @@ func longestCommonPrefix(strs []string) string {
 
 	return res
 }
+
+func reverseString(s []byte) {
+	if len(s) < 2 {
+		return
+	}
+
+	i, j := 0, len(s)-1
+
+	for i < j {
+		s[i], s[j] = s[j], s[i]
+		i, j = i+1, j-1
+	}
+
+	return
+}
