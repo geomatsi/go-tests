@@ -5,8 +5,9 @@
 package main
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPivotIndex(t *testing.T) {
@@ -77,4 +78,11 @@ func TestPascalTriangle(t *testing.T) {
 	assert.Equal(t, generate(5), [][]int{{1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}})
 	assert.Equal(t, generate(6), [][]int{{1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}, {1, 5, 10, 10, 5, 1}})
 	assert.Equal(t, generate(7), [][]int{{1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}, {1, 5, 10, 10, 5, 1}, {1, 6, 15, 20, 15, 6, 1}})
+}
+
+func TestArrayPairSum(t *testing.T) {
+	assert.Equal(t, 4, arrayPairSum([]int{1, 4, 3, 2}))
+	assert.Equal(t, 3, arrayPairSum([]int{1, 1, 2, 10}))
+	assert.Equal(t, 3, arrayPairSum([]int{1, 1, 2, 10}))
+	assert.Equal(t, 9, arrayPairSum([]int{1, 2, 3, 4, 5, 6}))
 }

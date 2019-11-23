@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 )
 
 func main() {
@@ -188,4 +189,23 @@ func generate(numRows int) [][]int {
 	}
 
 	return res
+}
+
+func arrayPairSum(nums []int) int {
+	sum := 0
+	ind := 0
+
+	// first step
+	// - the largest element is not going to contribute anyway
+	// - then second largest element is the best pair for the largest element
+	// second step
+	// - remove that pair and apply induction technique
+	sort.Ints(nums)
+
+	for ind < len(nums) {
+		sum += nums[ind]
+		ind += 2
+	}
+
+	return sum
 }
