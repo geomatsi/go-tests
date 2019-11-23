@@ -19,3 +19,14 @@ func TestPivotIndex(t *testing.T) {
 	assert.Equal(t, "10101", addBinary("1010", "1011"))
 	assert.Equal(t, "10110", addBinary("111", "1111"))
 }
+
+func TestStrStr(t *testing.T) {
+	assert.Equal(t, strStr("", "a"), -1)
+	assert.Equal(t, strStr("hello", ""), 0)
+	assert.Equal(t, strStr("short", "tooooolong"), -1)
+	assert.Equal(t, strStr("hello", "ll"), 2)
+	assert.Equal(t, strStr("aaaaa", "bba"), -1)
+	assert.Equal(t, strStr("hello", "hello"), 0)
+	assert.Equal(t, strStr("ababab", "ab"), 0)
+	assert.Equal(t, strStr("ababab", "ba"), 1)
+}

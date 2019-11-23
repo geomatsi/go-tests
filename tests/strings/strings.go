@@ -76,3 +76,25 @@ func addBinary(a string, b string) string {
 
 	return res
 }
+
+func strStr(haystack string, needle string) int {
+	hlen := len(haystack)
+	nlen := len(needle)
+
+	if nlen == 0 {
+		return 0
+	}
+
+	if nlen > hlen {
+		return -1
+	}
+
+	for i := 0; i <= (hlen - nlen); i++ {
+		sub := haystack[i:(nlen + i)]
+		if sub == needle {
+			return i
+		}
+	}
+
+	return -1
+}
