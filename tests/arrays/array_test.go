@@ -86,3 +86,9 @@ func TestArrayPairSum(t *testing.T) {
 	assert.Equal(t, 3, arrayPairSum([]int{1, 1, 2, 10}))
 	assert.Equal(t, 9, arrayPairSum([]int{1, 2, 3, 4, 5, 6}))
 }
+
+func TestTwoSum(t *testing.T) {
+	assert.Equal(t, []int{1, 2}, twoSum([]int{2, 7, 11, 15}, 9))
+	assert.Equal(t, []int{2, 4}, twoSum([]int{1, 2, 3, 4, 6}, 6))
+	assert.Equal(t, []int{2, 3}, twoSum([]int{1, 10, 21, 22, 31, 40}, 31))
+}
