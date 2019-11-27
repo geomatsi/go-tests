@@ -92,3 +92,28 @@ func TestTwoSum(t *testing.T) {
 	assert.Equal(t, []int{2, 4}, twoSum([]int{1, 2, 3, 4, 6}, 6))
 	assert.Equal(t, []int{2, 3}, twoSum([]int{1, 10, 21, 22, 31, 40}, 31))
 }
+
+func TestRemoveElements(t *testing.T) {
+	var num []int
+	var len int
+
+	num = []int{3, 2, 2, 3}
+	len = removeElement(num, 3)
+	assert.Equal(t, len, 2)
+	assert.Equal(t, []int{2, 2}, num[0:len])
+
+	num = []int{2, 3, 2, 3}
+	len = removeElement(num, 3)
+	assert.Equal(t, len, 2)
+	assert.Equal(t, []int{2, 2}, num[0:len])
+
+	num = []int{2, 2, 3, 3}
+	len = removeElement(num, 3)
+	assert.Equal(t, len, 2)
+	assert.Equal(t, []int{2, 2}, num[0:len])
+
+	num = []int{0, 1, 2, 2, 3, 0, 4, 2}
+	len = removeElement(num, 2)
+	assert.Equal(t, len, 5)
+	assert.Equal(t, []int{0, 1, 3, 0, 4}, num[0:len])
+}
