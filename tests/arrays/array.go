@@ -241,3 +241,20 @@ func removeElement(nums []int, val int) int {
 
 	return k
 }
+
+func findMaxConsecutiveOnes(nums []int) int {
+	m := 0
+	k := -1
+
+	for i, v := range nums {
+		if v == 0 {
+			k = i
+		}
+
+		if i-k > m {
+			m = i - k
+		}
+	}
+
+	return m
+}

@@ -117,3 +117,14 @@ func TestRemoveElements(t *testing.T) {
 	assert.Equal(t, len, 5)
 	assert.Equal(t, []int{0, 1, 3, 0, 4}, num[0:len])
 }
+
+func TestFindMaxConsOnes(t *testing.T) {
+	assert.Equal(t, 0, findMaxConsecutiveOnes([]int{}))
+	assert.Equal(t, 0, findMaxConsecutiveOnes([]int{0}))
+	assert.Equal(t, 1, findMaxConsecutiveOnes([]int{1}))
+	assert.Equal(t, 1, findMaxConsecutiveOnes([]int{1, 0}))
+	assert.Equal(t, 2, findMaxConsecutiveOnes([]int{1, 1}))
+	assert.Equal(t, 3, findMaxConsecutiveOnes([]int{1, 1, 0, 1, 1, 1}))
+	assert.Equal(t, 3, findMaxConsecutiveOnes([]int{1, 1, 1, 0, 1, 1}))
+	assert.Equal(t, 5, findMaxConsecutiveOnes([]int{0, 1, 1, 1, 1, 1, 0}))
+}
