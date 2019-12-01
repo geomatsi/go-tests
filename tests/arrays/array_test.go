@@ -128,3 +128,15 @@ func TestFindMaxConsOnes(t *testing.T) {
 	assert.Equal(t, 3, findMaxConsecutiveOnes([]int{1, 1, 1, 0, 1, 1}))
 	assert.Equal(t, 5, findMaxConsecutiveOnes([]int{0, 1, 1, 1, 1, 1, 0}))
 }
+
+func TestMinSubArrayLen(t *testing.T) {
+	assert.Equal(t, 0, minSubArrayLen(1, []int{}))
+	assert.Equal(t, 0, minSubArrayLen(1, []int{0}))
+	assert.Equal(t, 1, minSubArrayLen(1, []int{1}))
+	assert.Equal(t, 1, minSubArrayLen(1, []int{1, 0, 1, 0}))
+	assert.Equal(t, 3, minSubArrayLen(2, []int{1, 0, 1, 0}))
+	assert.Equal(t, 4, minSubArrayLen(4, []int{1, 1, 1, 1}))
+	assert.Equal(t, 3, minSubArrayLen(4, []int{2, 1, 1, 0, 0, 1}))
+	assert.Equal(t, 2, minSubArrayLen(4, []int{2, 1, 1, 0, 0, 1, 3}))
+	assert.Equal(t, 2, minSubArrayLen(7, []int{2, 3, 1, 2, 4, 3}))
+}

@@ -258,3 +258,33 @@ func findMaxConsecutiveOnes(nums []int) int {
 
 	return m
 }
+
+func minSubArrayLen(s int, nums []int) int {
+
+	xs, k, m, n := 0, 0, 0, len(nums)+1
+
+	for {
+		if xs < s {
+			if m >= len(nums) {
+				break
+			}
+			xs += nums[m]
+			m++
+		}
+
+		if xs >= s {
+			if m-k < n {
+				n = m - k
+			}
+
+			xs -= nums[k]
+			k++
+		}
+	}
+
+	if n > len(nums) {
+		return 0
+	}
+
+	return n
+}
