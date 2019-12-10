@@ -140,3 +140,35 @@ func TestMinSubArrayLen(t *testing.T) {
 	assert.Equal(t, 2, minSubArrayLen(4, []int{2, 1, 1, 0, 0, 1, 3}))
 	assert.Equal(t, 2, minSubArrayLen(7, []int{2, 3, 1, 2, 4, 3}))
 }
+
+func TestRotate(t *testing.T) {
+	var nums []int
+
+	nums = []int{}
+	rotate(nums, 1)
+	assert.Equal(t, nums, []int{})
+
+	nums = []int{1}
+	rotate(nums, 5)
+	assert.Equal(t, []int{1}, nums)
+
+	nums = []int{1, 2}
+	rotate(nums, 0)
+	assert.Equal(t, []int{1, 2}, nums)
+
+	nums = []int{1, 2}
+	rotate(nums, 1)
+	assert.Equal(t, []int{2, 1}, nums)
+
+	nums = []int{1, 2}
+	rotate(nums, 2)
+	assert.Equal(t, []int{1, 2}, nums)
+
+	nums = []int{1, 2, 3, 4}
+	rotate(nums, 1)
+	assert.Equal(t, []int{4, 1, 2, 3}, nums)
+
+	nums = []int{1, 2, 3, 4}
+	rotate(nums, 2)
+	assert.Equal(t, []int{3, 4, 1, 2}, nums)
+}

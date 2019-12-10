@@ -288,3 +288,18 @@ func minSubArrayLen(s int, nums []int) int {
 
 	return n
 }
+
+func rotate(nums []int, k int) {
+	if len(nums) < 2 {
+		return
+	}
+
+	k = k % len(nums)
+
+	for n := 0; n < k; n++ {
+		var a int = nums[len(nums)-1]
+		for i := 0; i < len(nums); i++ {
+			nums[i], a = a, nums[i]
+		}
+	}
+}
