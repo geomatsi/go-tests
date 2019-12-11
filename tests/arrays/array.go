@@ -294,7 +294,7 @@ func rotate(nums []int, k int) {
 		return
 	}
 
-	k = k % len(nums)
+	k %= len(nums)
 
 	for n := 0; n < k; n++ {
 		var a int = nums[len(nums)-1]
@@ -302,4 +302,33 @@ func rotate(nums []int, k int) {
 			nums[i], a = a, nums[i]
 		}
 	}
+}
+
+func reverseArray(s []int) {
+	if len(s) < 2 {
+		return
+	}
+
+	i, j := 0, len(s)-1
+
+	for i < j {
+		s[i], s[j] = s[j], s[i]
+		i, j = i+1, j-1
+	}
+
+	return
+}
+
+func rotate1(nums []int, k int) {
+	var n int = len(nums)
+
+	if n < 2 {
+		return
+	}
+
+	k %= len(nums)
+
+	reverseArray(nums[:(n - k)])
+	reverseArray(nums[(n - k):])
+	reverseArray(nums)
 }

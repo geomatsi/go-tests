@@ -172,3 +172,35 @@ func TestRotate(t *testing.T) {
 	rotate(nums, 2)
 	assert.Equal(t, []int{3, 4, 1, 2}, nums)
 }
+
+func TestRotate1(t *testing.T) {
+	var nums []int
+
+	nums = []int{}
+	rotate1(nums, 1)
+	assert.Equal(t, nums, []int{})
+
+	nums = []int{1}
+	rotate1(nums, 5)
+	assert.Equal(t, []int{1}, nums)
+
+	nums = []int{1, 2}
+	rotate1(nums, 0)
+	assert.Equal(t, []int{1, 2}, nums)
+
+	nums = []int{1, 2}
+	rotate1(nums, 1)
+	assert.Equal(t, []int{2, 1}, nums)
+
+	nums = []int{1, 2}
+	rotate1(nums, 2)
+	assert.Equal(t, []int{1, 2}, nums)
+
+	nums = []int{1, 2, 3, 4}
+	rotate1(nums, 1)
+	assert.Equal(t, []int{4, 1, 2, 3}, nums)
+
+	nums = []int{1, 2, 3, 4}
+	rotate1(nums, 2)
+	assert.Equal(t, []int{3, 4, 1, 2}, nums)
+}
