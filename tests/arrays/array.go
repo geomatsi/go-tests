@@ -332,3 +332,20 @@ func rotate1(nums []int, k int) {
 	reverseArray(nums[(n - k):])
 	reverseArray(nums)
 }
+
+func getPascalRow(rowIndex int) []int {
+	var res []int = make([]int, rowIndex+1)
+
+	res[0] = 1
+
+	for n := 0; n < rowIndex+2; n++ {
+
+		a := 0
+
+		for i := 0; i < n; i++ {
+			a, res[i] = res[i], res[i]+a
+		}
+	}
+
+	return res
+}

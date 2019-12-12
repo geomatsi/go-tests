@@ -204,3 +204,12 @@ func TestRotate1(t *testing.T) {
 	rotate1(nums, 2)
 	assert.Equal(t, []int{3, 4, 1, 2}, nums)
 }
+
+func TestGetPascalRow(t *testing.T) {
+	assert.Equal(t, []int{1}, getPascalRow(0))
+	assert.Equal(t, []int{1, 1}, getPascalRow(1))
+	assert.Equal(t, []int{1, 2, 1}, getPascalRow(2))
+	assert.Equal(t, []int{1, 3, 3, 1}, getPascalRow(3))
+	assert.Equal(t, []int{1, 4, 6, 4, 1}, getPascalRow(4))
+	assert.Equal(t, []int{1, 5, 10, 10, 5, 1}, getPascalRow(5))
+}
