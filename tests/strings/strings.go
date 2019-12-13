@@ -180,3 +180,47 @@ func reverseWords(s string) string {
 
 	return string(v)
 }
+
+func reverseWords1(s string) string {
+	var v []byte
+
+	i := 0
+	j := 0
+
+	for {
+		for {
+			if i >= len(s) || s[i] != ' ' {
+				break
+			}
+
+			i++
+		}
+
+		if i >= len(s) {
+			break
+		}
+
+		if len(v) > 0 {
+			v = append(v, ' ')
+		}
+
+		j = i
+
+		for {
+			if j >= len(s) || s[j] == ' ' {
+				break
+
+			}
+
+			j++
+		}
+
+		for k := j - 1; k >= i; k-- {
+			v = append(v, s[k])
+		}
+
+		i = j
+	}
+
+	return string(v)
+}

@@ -71,8 +71,18 @@ func TestReverseWords(t *testing.T) {
 	assert.Equal(t, "", reverseWords(""))
 	assert.Equal(t, "", reverseWords(" "))
 	assert.Equal(t, "", reverseWords("    "))
+	assert.Equal(t, "c b a", reverseWords("a b c"))
+	assert.Equal(t, "c b a", reverseWords(" a b  c  "))
 	assert.Equal(t, "blue", reverseWords("blue"))
 	assert.Equal(t, "blue is sky the", reverseWords("the sky is blue"))
 	assert.Equal(t, "example good a", reverseWords("a good   example"))
 	assert.Equal(t, "world! hello", reverseWords("  hello world!  "))
+}
+
+func TestReverseWords1(t *testing.T) {
+	assert.Equal(t, "", reverseWords1(""))
+	assert.Equal(t, "eulb", reverseWords1("blue"))
+	assert.Equal(t, "eht yks si eulb", reverseWords1("the sky is blue"))
+	assert.Equal(t, "a doog elpmaxe", reverseWords1("a good example"))
+	assert.Equal(t, "olleh !dlrow", reverseWords1("hello world!"))
 }
