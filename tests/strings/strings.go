@@ -135,3 +135,48 @@ func reverseString(s []byte) {
 
 	return
 }
+
+func reverseWords(s string) string {
+	var v []byte
+
+	i := len(s) - 1
+	j := len(s) - 1
+
+	for {
+		for {
+			if i < 0 || s[i] != ' ' {
+				break
+			}
+
+			i--
+		}
+
+		if i < 0 {
+			break
+		}
+
+		if len(v) > 0 {
+			v = append(v, ' ')
+		}
+
+		j = i
+
+		for {
+			if j < 0 || s[j] == ' ' {
+				break
+
+			}
+
+			j--
+		}
+
+		for k := j + 1; k < i+1; k++ {
+			v = append(v, s[k])
+
+		}
+
+		i = j
+	}
+
+	return string(v)
+}

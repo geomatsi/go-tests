@@ -66,3 +66,13 @@ func TestReverseString(t *testing.T) {
 	reverseString(s)
 	assert.Equal(t, s, []byte{'o', 'l', 'l', 'e', 'h'})
 }
+
+func TestReverseWords(t *testing.T) {
+	assert.Equal(t, "", reverseWords(""))
+	assert.Equal(t, "", reverseWords(" "))
+	assert.Equal(t, "", reverseWords("    "))
+	assert.Equal(t, "blue", reverseWords("blue"))
+	assert.Equal(t, "blue is sky the", reverseWords("the sky is blue"))
+	assert.Equal(t, "example good a", reverseWords("a good   example"))
+	assert.Equal(t, "world! hello", reverseWords("  hello world!  "))
+}
