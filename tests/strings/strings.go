@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 func main() {
@@ -136,7 +137,7 @@ func reverseString(s []byte) {
 	return
 }
 
-func reverseWords(s string) string {
+func reverseWordsOrder(s string) string {
 	var v []byte
 
 	i := len(s) - 1
@@ -181,7 +182,7 @@ func reverseWords(s string) string {
 	return string(v)
 }
 
-func reverseWords1(s string) string {
+func reverseWords(s string) string {
 	var v []byte
 
 	i := 0
@@ -223,4 +224,21 @@ func reverseWords1(s string) string {
 	}
 
 	return string(v)
+}
+
+func reverseAsRunes(s string) string {
+	runes := []rune(s)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
+}
+
+func reverseWordsStd(s string) string {
+	strs := strings.Fields(s)
+	for p, e := range strs {
+		strs[p] = reverseAsRunes(e)
+	}
+
+	return strings.Join(strs, " ")
 }

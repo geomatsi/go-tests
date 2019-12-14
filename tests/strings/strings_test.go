@@ -67,22 +67,38 @@ func TestReverseString(t *testing.T) {
 	assert.Equal(t, s, []byte{'o', 'l', 'l', 'e', 'h'})
 }
 
-func TestReverseWords(t *testing.T) {
-	assert.Equal(t, "", reverseWords(""))
-	assert.Equal(t, "", reverseWords(" "))
-	assert.Equal(t, "", reverseWords("    "))
-	assert.Equal(t, "c b a", reverseWords("a b c"))
-	assert.Equal(t, "c b a", reverseWords(" a b  c  "))
-	assert.Equal(t, "blue", reverseWords("blue"))
-	assert.Equal(t, "blue is sky the", reverseWords("the sky is blue"))
-	assert.Equal(t, "example good a", reverseWords("a good   example"))
-	assert.Equal(t, "world! hello", reverseWords("  hello world!  "))
+func TestReverseWordsOrder(t *testing.T) {
+	assert.Equal(t, "", reverseWordsOrder(""))
+	assert.Equal(t, "", reverseWordsOrder(" "))
+	assert.Equal(t, "", reverseWordsOrder("    "))
+	assert.Equal(t, "c b a", reverseWordsOrder("a b c"))
+	assert.Equal(t, "c b a", reverseWordsOrder(" a b  c  "))
+	assert.Equal(t, "blue", reverseWordsOrder("blue"))
+	assert.Equal(t, "blue is sky the", reverseWordsOrder("the sky is blue"))
+	assert.Equal(t, "example good a", reverseWordsOrder("a good   example"))
+	assert.Equal(t, "world! hello", reverseWordsOrder("  hello world!  "))
 }
 
-func TestReverseWords1(t *testing.T) {
-	assert.Equal(t, "", reverseWords1(""))
-	assert.Equal(t, "eulb", reverseWords1("blue"))
-	assert.Equal(t, "eht yks si eulb", reverseWords1("the sky is blue"))
-	assert.Equal(t, "a doog elpmaxe", reverseWords1("a good example"))
-	assert.Equal(t, "olleh !dlrow", reverseWords1("hello world!"))
+func TestReverseWords(t *testing.T) {
+	assert.Equal(t, "", reverseWords(""))
+	assert.Equal(t, "eulb", reverseWords("blue"))
+	assert.Equal(t, "eht yks si eulb", reverseWords("the sky is blue"))
+	assert.Equal(t, "a doog elpmaxe", reverseWords("a good example"))
+	assert.Equal(t, "olleh !dlrow", reverseWords("hello world!"))
+}
+
+func TestReverseWordsStd(t *testing.T) {
+	assert.Equal(t, "", reverseWordsStd(""))
+	assert.Equal(t, "a", reverseWordsStd("a"))
+	assert.Equal(t, "a b", reverseWordsStd("a b "))
+	assert.Equal(t, "a b", reverseWordsStd(" a b "))
+	assert.Equal(t, "cba cba", reverseWordsStd(" abc  abc  "))
+	assert.Equal(t, "eulb", reverseWordsStd("blue"))
+	assert.Equal(t, "eht yks si eulb", reverseWordsStd("the sky is blue"))
+	assert.Equal(t, "a doog elpmaxe", reverseWordsStd("a good example"))
+	assert.Equal(t, "olleh !dlrow", reverseWordsStd("hello world!"))
+	assert.Equal(t, "оволс и олед", reverseWordsStd("слово и дело"))
+	assert.Equal(t, "оволс и олед", reverseWordsStd(" слово и дело"))
+	assert.Equal(t, "оволс и олед", reverseWordsStd(" слово и  дело  "))
+	assert.Equal(t, "оволс и олед olleh", reverseWordsStd(" слово и  дело  hello "))
 }
