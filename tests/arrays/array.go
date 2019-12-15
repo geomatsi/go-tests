@@ -349,3 +349,20 @@ func getPascalRow(rowIndex int) []int {
 
 	return res
 }
+
+func removeDuplicates(nums []int) int {
+	if len(nums) == 0 {
+		return 0
+	}
+
+	n := 1
+
+	for i := 0; i < len(nums); i++ {
+		if nums[n-1] != nums[i] {
+			nums[n] = nums[i]
+			n++
+		}
+	}
+
+	return n
+}

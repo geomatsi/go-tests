@@ -213,3 +213,12 @@ func TestGetPascalRow(t *testing.T) {
 	assert.Equal(t, []int{1, 4, 6, 4, 1}, getPascalRow(4))
 	assert.Equal(t, []int{1, 5, 10, 10, 5, 1}, getPascalRow(5))
 }
+
+func TestRemoveDuplicates(t *testing.T) {
+	assert.Equal(t, 0, removeDuplicates([]int{}))
+	assert.Equal(t, 1, removeDuplicates([]int{1}))
+	assert.Equal(t, 2, removeDuplicates([]int{1, 2}))
+	assert.Equal(t, 1, removeDuplicates([]int{1, 1, 1, 1, 1}))
+	assert.Equal(t, 4, removeDuplicates([]int{0, 1, 2, 3}))
+	assert.Equal(t, 5, removeDuplicates([]int{0, 0, 1, 1, 1, 2, 2, 3, 3, 4}))
+}
