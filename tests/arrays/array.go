@@ -366,3 +366,45 @@ func removeDuplicates(nums []int) int {
 
 	return n
 }
+
+func moveZeroes(nums []int) {
+	var n int = len(nums)
+	var i int = 0
+	var j int = 0
+
+	for {
+		// search for next zero
+		for i < n {
+			if nums[i] == 0 {
+				break
+			}
+
+			i++
+		}
+
+		if i == n {
+			break
+		}
+
+		// search for next non-zero
+		if j < i {
+			j = i + 1
+		}
+
+		for j < n {
+			if nums[j] != 0 {
+				nums[i] = nums[j]
+				nums[j] = 0
+				i++
+				j++
+				break
+			}
+
+			j++
+		}
+
+		if j == n {
+			break
+		}
+	}
+}

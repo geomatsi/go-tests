@@ -222,3 +222,23 @@ func TestRemoveDuplicates(t *testing.T) {
 	assert.Equal(t, 4, removeDuplicates([]int{0, 1, 2, 3}))
 	assert.Equal(t, 5, removeDuplicates([]int{0, 0, 1, 1, 1, 2, 2, 3, 3, 4}))
 }
+
+func TestMoveZeroes(t *testing.T) {
+	var nums []int
+
+	nums = []int{}
+	moveZeroes(nums)
+	assert.Equal(t, []int{}, nums)
+
+	nums = []int{1}
+	moveZeroes(nums)
+	assert.Equal(t, []int{1}, nums)
+
+	nums = []int{0, 1, 0, 3, 12}
+	moveZeroes(nums)
+	assert.Equal(t, []int{1, 3, 12, 0, 0}, nums)
+
+	nums = []int{1, 0, 0, 0, 1, 0, 0, 1, 1, 0}
+	moveZeroes(nums)
+	assert.Equal(t, []int{1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, nums)
+}
