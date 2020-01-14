@@ -2,24 +2,113 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build ignore
-
 package main
 
 import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"sync"
+
+	"github.com/gorilla/websocket"
 )
+
+/* pub/sub */
+
+type hubPubSub struct {
+	mu     sync.RWMutex
+	subs   map[string]map[int]chan string
+	closed bool
+	id     int
+}
+
+func newhubPubSub() *hubPubSub {
+	ps := &hubPubSub{}
+	ps.subs = make(map[string]map[int]chan string)
+	return ps
+}
+
+func (ps *hubPubSub) subscribe(topic string) (id int, ch chan string) {
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
+
+	if _, ok := ps.subs[topic]; !ok {
+		ps.subs[topic] = make(map[int]chan string)
+	}
+
+	ch = make(chan string, 1)
+	id, ps.id = ps.id, ps.id+1
+	ps.subs[topic][id] = ch
+
+	return
+}
+
+func (ps *hubPubSub) unsubscribe(topic string, id int) {
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
+
+	if _, ok := ps.subs[topic]; ok {
+		if !ps.closed {
+			close(ps.subs[topic][id])
+		}
+		delete(ps.subs[topic], id)
+	}
+}
+
+func (ps *hubPubSub) publish(topic string, msg string) {
+	ps.mu.RLock()
+	defer ps.mu.RUnlock()
+
+	if ps.closed {
+		return
+	}
+
+	if _, ok := ps.subs[topic]; ok {
+		for id := range ps.subs[topic] {
+			ps.subs[topic][id] <- msg
+		}
+	}
+}
+
+func (ps *hubPubSub) close() {
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
+
+	if !ps.closed {
+		ps.closed = true
+		for topic := range ps.subs {
+			for id := range ps.subs[topic] {
+				close(ps.subs[topic][id])
+			}
+		}
+	}
+}
+
+/* websocket */
 
 var addr = flag.String("addr", ":8080", "http service address")
 
 var upgrader = websocket.Upgrader{}
+var hub *hubPubSub
+
+func main() {
+	hub = newhubPubSub()
+	go handleCli()
+
+	flag.Parse()
+	log.SetFlags(0)
+	http.HandleFunc("/control", control)
+	http.HandleFunc("/", home)
+	log.Fatal(http.ListenAndServe(*addr, nil))
+}
+
+func home(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "websocket test")
+}
 
 func control(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -30,10 +119,11 @@ func control(w http.ResponseWriter, r *http.Request) {
 
 	defer conn.Close()
 
-	cli := make(chan string)
-	net := make(chan string)
+	id, cli := hub.subscribe("user")
+	defer hub.unsubscribe("user", id)
+	fmt.Printf("new subscriber: %d\n", id)
 
-	go handleCli(cli)
+	net := make(chan string)
 	go handleNet(net, conn)
 
 	for {
@@ -58,25 +148,6 @@ func control(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleCli(cc chan string) {
-	reader := bufio.NewReader(os.Stdin)
-
-	for {
-		fmt.Print("Enter message: ")
-		str, err := reader.ReadString('\n')
-		if err != nil {
-			if err != io.EOF {
-				fmt.Printf("err: stdio read: %s\n", err)
-			}
-
-			close(cc)
-			return
-		}
-
-		cc <- str
-	}
-}
-
 func handleNet(cc chan string, conn *websocket.Conn) {
 	for {
 		_, message, err := conn.ReadMessage()
@@ -89,14 +160,23 @@ func handleNet(cc chan string, conn *websocket.Conn) {
 	}
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "websocket test")
-}
+func handleCli() {
+	reader := bufio.NewReader(os.Stdin)
 
-func main() {
-	flag.Parse()
-	log.SetFlags(0)
-	http.HandleFunc("/control", control)
-	http.HandleFunc("/", home)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	for {
+		fmt.Print("Enter message: ")
+		str, err := reader.ReadString('\n')
+		if err != nil {
+			if err != io.EOF {
+				fmt.Printf("err: stdio read: %s\n", err)
+			}
+
+			hub.close()
+			break
+		}
+
+		hub.publish("user", str)
+	}
+
+	os.Exit(0)
 }
