@@ -21,33 +21,31 @@ import (
 
 type hubPubSub struct {
 	mu     sync.RWMutex
-	subs   map[string]map[int]chan string
+	subs   map[string]map[string]chan string
 	closed bool
-	id     int
 }
 
 func newhubPubSub() *hubPubSub {
 	ps := &hubPubSub{}
-	ps.subs = make(map[string]map[int]chan string)
+	ps.subs = make(map[string]map[string]chan string)
 	return ps
 }
 
-func (ps *hubPubSub) subscribe(topic string) (id int, ch chan string) {
+func (ps *hubPubSub) subscribe(id string, topic string) (ch chan string) {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
 
 	if _, ok := ps.subs[topic]; !ok {
-		ps.subs[topic] = make(map[int]chan string)
+		ps.subs[topic] = make(map[string]chan string)
 	}
 
 	ch = make(chan string, 1)
-	id, ps.id = ps.id, ps.id+1
 	ps.subs[topic][id] = ch
 
 	return
 }
 
-func (ps *hubPubSub) unsubscribe(topic string, id int) {
+func (ps *hubPubSub) unsubscribe(id string, topic string) {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
 
@@ -119,9 +117,10 @@ func control(w http.ResponseWriter, r *http.Request) {
 
 	defer conn.Close()
 
-	id, cli := hub.subscribe("user")
-	defer hub.unsubscribe("user", id)
-	fmt.Printf("new subscriber: %d\n", id)
+	id := conn.RemoteAddr().String()
+	cli := hub.subscribe(id, "user")
+	defer hub.unsubscribe(id, "user")
+	fmt.Printf("new subscriber: %s\n", id)
 
 	net := make(chan string)
 	go handleNet(net, conn)
