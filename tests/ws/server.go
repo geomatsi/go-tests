@@ -134,11 +134,13 @@ func control(w http.ResponseWriter, r *http.Request) {
 
 			err := conn.WriteMessage(websocket.TextMessage, []byte(message))
 			if err != nil {
+				fmt.Printf("failed to write to client %s: %s\n", id, err)
 				return
 			}
 
 		case message, more := <-net:
 			if more == false {
+				fmt.Printf("client %s disconnected\n", id)
 				return
 			}
 
@@ -151,6 +153,7 @@ func handleNet(cc chan string, conn *websocket.Conn) {
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
+			fmt.Printf("failed to read from client %s: %s\n", conn.RemoteAddr(), err)
 			close(cc)
 			return
 		}
