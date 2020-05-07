@@ -3,23 +3,179 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
-	"strconv"
+	"sync"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/skypies/adsb"
+	adsb "github.com/skypies/adsb"
 )
+
+/* command line params */
 
 var adsbAddr = flag.String("addr", "localhost:30003", "dump1090 SBS-1 service")
 var tgDebug = flag.Bool("debug", false, "Telegram Bot debug")
 var tgToken = flag.String("token", "00000", "Telegram Bot Token")
 var tgChat = flag.Int64("chat", 000000, "Telegram Chat Id")
 
+/* data */
+
+type adsbTable struct {
+	rec map[adsb.IcaoId]adsb.Msg
+	syn sync.RWMutex
+}
+
+func newTable() *adsbTable {
+	tb := &adsbTable{}
+	tb.rec = make(map[adsb.IcaoId]adsb.Msg)
+	return tb
+}
+
+func (tb *adsbTable) update(sbs string) (adsb.IcaoId, bool) {
+	var new adsb.Msg
+	var cur adsb.Msg
+
+	var tsUpdated bool
+	var updated bool
+	var ok bool
+
+	tsUpdated = false
+	updated = false
+
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	if err := new.FromSBS1(sbs); err != nil {
+		return "", false
+	}
+
+	id := new.Icao24
+
+	// FIXME: incomplete dump1090 output ?
+	if id == "000000" {
+		return "", false
+	}
+
+	_, ok = tb.rec[id]
+	if !ok {
+		cur.FromSBS1(fmt.Sprintf(",,,,%s,,,,,,,,,,,,,,,,,", id))
+		tb.rec[id] = cur
+	}
+
+	cur = tb.rec[id]
+
+	if new.HasCallsign() {
+		if cur.Callsign != new.Callsign {
+			cur.Callsign = new.Callsign
+			updated = true
+		}
+	}
+
+	if new.HasGroundSpeed() {
+		if cur.GroundSpeed != new.GroundSpeed {
+			cur.GroundSpeed = new.GroundSpeed
+			updated = true
+		}
+	}
+
+	if new.HasPosition() {
+		if cur.Position != new.Position {
+			cur.Position = new.Position
+			updated = true
+		}
+	}
+
+	if new.HasVerticalRate() {
+		if cur.VerticalRate != new.VerticalRate {
+			cur.VerticalRate = new.VerticalRate
+			updated = true
+		}
+	}
+
+	if new.Altitude != 0 {
+		if cur.Altitude != new.Altitude {
+			cur.Altitude = new.Altitude
+			updated = true
+		}
+	}
+
+	if new.GeneratedTimestampUTC.After(cur.GeneratedTimestampUTC) {
+		cur.GeneratedTimestampUTC = new.GeneratedTimestampUTC
+		tsUpdated = true
+	}
+
+	if updated || tsUpdated {
+		tb.rec[id] = cur
+	}
+
+	return id, updated
+}
+
+func (tb *adsbTable) get(id adsb.IcaoId) (adsb.Msg, bool) {
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	ac, ok := tb.rec[id]
+
+	return ac, ok
+}
+
+func (tb *adsbTable) getString(id adsb.IcaoId) string {
+	var s string
+
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	m, ok := tb.rec[id]
+	if !ok {
+		return ""
+	}
+
+	if m.Icao24 != id {
+		fmt.Printf("BOOO: %s != %s\n", m.Icao24, id)
+	}
+
+	if m.HasCallsign() {
+		s = fmt.Sprintf("%s (%s)", m.Callsign, m.Icao24)
+	} else {
+		s = fmt.Sprintf("UNKNOWN (%s)", m.Icao24)
+	}
+
+	if m.Altitude != 0 {
+		s += fmt.Sprintf(" ALT [%d]", m.Altitude)
+	}
+
+	if m.HasGroundSpeed() {
+		s += fmt.Sprintf(" GND SPEED [%d]", m.GroundSpeed)
+	}
+
+	if m.HasVerticalRate() {
+		s += fmt.Sprintf(" VERT SPEED [%d]", m.VerticalRate)
+	}
+
+	if m.HasPosition() {
+		s += fmt.Sprintf(" POS [%s]", m.Position)
+	}
+
+	return s
+}
+
+func (tb *adsbTable) age(time time.Time) {
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	/* TODO */
+}
+
+/* main */
+
+var adsbLog *adsbTable
+
 func main() {
-	var msg adsb.Msg
+	adsbLog = newTable()
 
 	log.SetFlags(0)
 	flag.Parse()
@@ -41,30 +197,12 @@ EXIT:
 				break EXIT
 			}
 
-			msg.FromSBS1(sbs)
-
-			if msg.HasCallsign() {
-				text := msg.Callsign + ": "
-				if msg.HasPosition() {
-					text += "POS" + msg.Position.String() + " "
-				}
-
-				if msg.HasGroundSpeed() {
-					text += "GND SPEED(" + strconv.FormatInt(msg.GroundSpeed, 10) + ") "
-				}
-
-				if msg.HasVerticalRate() {
-					text += "VERT SPEED(" + strconv.FormatInt(msg.VerticalRate, 10) + ") "
-				}
-
-				if msg.Altitude != 0 {
-					text += "ALT(" + strconv.FormatInt(msg.Altitude, 10) + ") "
-				}
-
-				bot <- text
+			if id, ok := adsbLog.update(sbs); ok {
+				bot <- adsbLog.getString(id)
 			}
-		case t := <-beat.C:
-			log.Println("Periodic ADS-B table aging: ", t)
+
+		case <-beat.C:
+			// TODO: age ADS-B table
 		}
 	}
 }
@@ -120,6 +258,8 @@ EXIT:
 			if more == false {
 				break EXIT
 			}
+
+			log.Printf("New bot message: %s\n", message)
 
 			if conn == false {
 				break
