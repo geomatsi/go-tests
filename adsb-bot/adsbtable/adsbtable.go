@@ -21,6 +21,14 @@ func NewTable() *AdsbTable {
 	return tb
 }
 
+// Length returns current length of ADS-B table
+func (tb *AdsbTable) Length() int {
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	return len(tb.rec)
+}
+
 // Update parses SBS-1 string and updates ADS-B table
 func (tb *AdsbTable) Update(sbs string) (adsb.IcaoId, bool) {
 	var new adsb.Msg
@@ -47,13 +55,11 @@ func (tb *AdsbTable) Update(sbs string) (adsb.IcaoId, bool) {
 		return "", false
 	}
 
-	_, ok = tb.rec[id]
-	if !ok {
-		cur.FromSBS1(fmt.Sprintf(",,,,%s,,,,,,,,,,,,,,,,,", id))
+	if cur, ok = tb.rec[id]; !ok {
+		cur.FromSBS1(fmt.Sprintf("MSG,1,,,%s,,1970/01/01,00:00:00.000,1970/01/01,00:00:00.000,,,,,,,,,,,,0", id))
 		tb.rec[id] = cur
+		updated = true
 	}
-
-	cur = tb.rec[id]
 
 	if new.HasCallsign() {
 		if cur.Callsign != new.Callsign {
@@ -92,6 +98,7 @@ func (tb *AdsbTable) Update(sbs string) (adsb.IcaoId, bool) {
 
 	if new.GeneratedTimestampUTC.After(cur.GeneratedTimestampUTC) {
 		cur.GeneratedTimestampUTC = new.GeneratedTimestampUTC
+		// no need to report update: only last generated timestamp updated
 		tsUpdated = true
 	}
 
@@ -114,18 +121,15 @@ func (tb *AdsbTable) Get(id adsb.IcaoId) (adsb.Msg, bool) {
 
 // GetString returns ADS-B string for specified 24-bit ICAO aircraft address
 func (tb *AdsbTable) GetString(id adsb.IcaoId) string {
+	var m adsb.Msg
 	var s string
+	var ok bool
 
 	tb.syn.Lock()
 	defer tb.syn.Unlock()
 
-	m, ok := tb.rec[id]
-	if !ok {
+	if m, ok = tb.rec[id]; !ok {
 		return ""
-	}
-
-	if m.Icao24 != id {
-		fmt.Printf("BOOO: %s != %s\n", m.Icao24, id)
 	}
 
 	if m.HasCallsign() {
