@@ -24,6 +24,7 @@ type adsbBotConfig struct {
 }
 
 var botConfig = flag.String("c", "/etc/adsbbot.cfg", "ADS-B Bot configuration file")
+var botAging = flag.Int("a", 1, "ADS-B Bot table aging time in minutes")
 var botDebug = flag.Bool("d", false, "ADS-B Bot debug")
 
 /* main */
@@ -46,10 +47,6 @@ func main() {
 		log.Fatalf("Failed to parse config %s: %s\n", *botConfig, err)
 	}
 
-	log.Println("addr: ", adsbConf.Addr)
-	log.Println("token: ", adsbConf.Token)
-	log.Println("chat: ", adsbConf.Chat)
-
 	adsbLog = adsbtable.NewTable()
 
 	bot := make(chan string)
@@ -59,7 +56,7 @@ func main() {
 	go handleADSB(adsb)
 
 	cutoff := time.Now()
-	beat := time.NewTicker(1 * time.Minute)
+	beat := time.NewTicker(time.Duration(*botAging) * time.Minute)
 
 EXIT:
 	for {
