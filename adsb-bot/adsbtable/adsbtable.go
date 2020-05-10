@@ -121,12 +121,43 @@ func (tb *AdsbTable) Get(id adsb.IcaoId) (adsb.Msg, bool) {
 
 // GetString returns ADS-B string for specified 24-bit ICAO aircraft address
 func (tb *AdsbTable) GetString(id adsb.IcaoId) string {
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	return tb.getString(id)
+}
+
+// Age removes outdated ADS-B entries
+func (tb *AdsbTable) Age(time time.Time) {
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	for id, rec := range tb.rec {
+		if rec.GeneratedTimestampUTC.Before(time) {
+			delete(tb.rec, id)
+		}
+	}
+}
+
+// Summary provides basic info for active records
+func (tb *AdsbTable) Summary() map[adsb.IcaoId]string {
+	tb.syn.Lock()
+	defer tb.syn.Unlock()
+
+	m := make(map[adsb.IcaoId]string)
+
+	for id := range tb.rec {
+		m[id] = tb.getString(id)
+	}
+
+	return m
+}
+
+// Internal use only: assumed to be used under syn lock
+func (tb *AdsbTable) getString(id adsb.IcaoId) string {
 	var m adsb.Msg
 	var s string
 	var ok bool
-
-	tb.syn.Lock()
-	defer tb.syn.Unlock()
 
 	if m, ok = tb.rec[id]; !ok {
 		return ""
@@ -155,16 +186,4 @@ func (tb *AdsbTable) GetString(id adsb.IcaoId) string {
 	}
 
 	return s
-}
-
-// Age removes outdated ADS-B entries
-func (tb *AdsbTable) Age(time time.Time) {
-	tb.syn.Lock()
-	defer tb.syn.Unlock()
-
-	for id, rec := range tb.rec {
-		if rec.GeneratedTimestampUTC.Before(time) {
-			delete(tb.rec, id)
-		}
-	}
 }
