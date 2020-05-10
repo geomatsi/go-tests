@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"io"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"adsb-bot/adsbtable"
@@ -13,22 +15,42 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-/* command line params */
+/* configuration */
 
-var adsbAddr = flag.String("addr", "localhost:30003", "dump1090 SBS-1 service")
-var tgDebug = flag.Bool("debug", false, "Telegram Bot debug")
-var tgToken = flag.String("token", "0", "Telegram Bot Token")
-var tgChat = flag.Int64("chat", 0, "Telegram Chat Id")
+type adsbBotConfig struct {
+	Addr  string
+	Token string
+	Chat  int64
+}
+
+var botConfig = flag.String("c", "/etc/adsbbot.cfg", "ADS-B Bot configuration file")
+var botDebug = flag.Bool("d", false, "ADS-B Bot debug")
 
 /* main */
 
 var adsbLog *adsbtable.AdsbTable
+var adsbConf adsbBotConfig
 
 func main() {
-	adsbLog = adsbtable.NewTable()
-
 	log.SetFlags(0)
 	flag.Parse()
+
+	file, err := os.Open(*botConfig)
+	defer file.Close()
+	if err != nil {
+		log.Fatalf("Failed to open config %s: %s\n", *botConfig, err)
+	}
+
+	err = json.NewDecoder(file).Decode(&adsbConf)
+	if err != nil {
+		log.Fatalf("Failed to parse config %s: %s\n", *botConfig, err)
+	}
+
+	log.Println("addr: ", adsbConf.Addr)
+	log.Println("token: ", adsbConf.Token)
+	log.Println("chat: ", adsbConf.Chat)
+
+	adsbLog = adsbtable.NewTable()
 
 	bot := make(chan string)
 	go handleBot(bot)
@@ -81,13 +103,13 @@ func handleADSB(cc chan string) {
 
 			cc <- str
 		} else {
-			adsb, err = net.Dial("tcp", *adsbAddr)
+			adsb, err = net.Dial("tcp", adsbConf.Addr)
 			if err != nil {
 				log.Printf("ADS-B server dial: %s\n", err)
 				time.Sleep(10 * time.Second)
 				continue
 			} else {
-				log.Printf("Connected to ADS-B server %s\n", *adsbAddr)
+				log.Printf("Connected to ADS-B server %s\n", adsbConf.Addr)
 				reader = bufio.NewReader(adsb)
 				conn = true
 			}
@@ -116,7 +138,7 @@ EXIT:
 				break
 			}
 
-			report := tgbotapi.NewMessage(*tgChat, message)
+			report := tgbotapi.NewMessage(adsbConf.Chat, message)
 			_, err := bot.Send(report)
 			if err != nil {
 				beat = time.NewTimer(5 * time.Second)
@@ -126,13 +148,13 @@ EXIT:
 
 		case <-beat.C:
 			if conn == false {
-				bot, err = tgbotapi.NewBotAPI(*tgToken)
+				bot, err = tgbotapi.NewBotAPI(adsbConf.Token)
 				if err != nil {
 					beat = time.NewTimer(5 * time.Second)
 					log.Printf("Bot connect failed: %s\n", err)
 				} else {
 					log.Printf("Bot authorized on account %s", bot.Self.UserName)
-					bot.Debug = *tgDebug
+					bot.Debug = *botDebug
 					conn = true
 				}
 			}
