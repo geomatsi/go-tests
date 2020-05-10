@@ -72,9 +72,10 @@ EXIT:
 				bot <- adsbLog.GetString(id)
 			}
 
-		case t := <-beat.C:
+		case <-beat.C:
+			log.Printf("Aging ADS-B records: drop older than %v\n", cutoff)
 			adsbLog.Age(cutoff)
-			cutoff = t
+			cutoff = time.Now()
 		}
 	}
 }
@@ -118,6 +119,7 @@ func handleADSB(cc chan string) {
 
 func handleBot(cc chan string) {
 	var bot *tgbotapi.BotAPI
+	var upd tgbotapi.UpdatesChannel
 	var err error
 
 	beat := time.NewTimer(1 * time.Second)
@@ -137,24 +139,84 @@ EXIT:
 				break
 			}
 
-			report := tgbotapi.NewMessage(adsbConf.Chat, message)
-			_, err := bot.Send(report)
-			if err != nil {
-				beat = time.NewTimer(5 * time.Second)
-				log.Printf("bot failed to send message: %s\n", err)
-				conn = false
+			if adsbConf.Chat != 0 {
+				report := tgbotapi.NewMessage(adsbConf.Chat, message)
+				_, err := bot.Send(report)
+				if err != nil {
+					beat = time.NewTimer(10 * time.Second)
+					log.Printf("bot failed to send message: %s\n", err)
+					conn = false
+				}
 			}
 
 		case <-beat.C:
 			if conn == false {
 				bot, err = tgbotapi.NewBotAPI(adsbConf.Token)
 				if err != nil {
-					beat = time.NewTimer(5 * time.Second)
+					beat = time.NewTimer(10 * time.Second)
 					log.Printf("Bot connect failed: %s\n", err)
-				} else {
-					log.Printf("Bot authorized on account %s", bot.Self.UserName)
-					bot.Debug = *botDebug
-					conn = true
+					break
+				}
+
+				u := tgbotapi.NewUpdate(0)
+				upd, err = bot.GetUpdatesChan(u)
+
+				if err != nil {
+					beat = time.NewTimer(10 * time.Second)
+					log.Printf("Bot GetUpdates failed: %s\n", err)
+					break
+				}
+
+				log.Printf("Bot ready on account %s", bot.Self.UserName)
+				bot.Debug = *botDebug
+				conn = true
+			}
+
+		case update := <-upd:
+			if update.Message == nil {
+				break
+			}
+
+			if update.Message.IsCommand() {
+				reply := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+				switch update.Message.Command() {
+				case "help":
+					reply.Text += "Supported commands:\n"
+					reply.Text += "\t/toggle - enable/disable ADS-B updates\n"
+					reply.Text += "\t/list - list active records\n"
+					reply.Text += "\t/status - current settings\n"
+				case "toggle":
+					if adsbConf.Chat == 0 {
+						reply.Text = "ADS-B notifications enabled"
+						adsbConf.Chat = update.Message.Chat.ID
+					} else {
+						reply.Text = "ADS-B notifications disabled"
+						adsbConf.Chat = 0
+					}
+				case "list":
+					m := adsbLog.Summary()
+					if len(m) == 0 {
+						reply.Text = "No ADS-B data"
+					} else {
+						for id := range m {
+							reply.Text += m[id] + "\n"
+						}
+					}
+				case "status":
+					if adsbConf.Chat == 0 {
+						reply.Text += "* notifications disabled"
+					} else {
+						reply.Text += "* notifications enabled"
+					}
+				default:
+					reply.Text = "Not yet implemented..."
+				}
+
+				_, err := bot.Send(reply)
+				if err != nil {
+					log.Printf("bot failed to send message: %s\n", err)
+					beat = time.NewTimer(10 * time.Second)
+					conn = false
 				}
 			}
 		}
