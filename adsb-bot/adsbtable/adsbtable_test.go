@@ -2,6 +2,7 @@ package adsbtable
 
 import (
 	"testing"
+	"time"
 
 	"github.com/skypies/adsb"
 	"github.com/stretchr/testify/assert"
@@ -108,4 +109,62 @@ func Test6(t *testing.T) {
 	assert.Equal(t, 2, table.Length())
 	assert.Equal(t, true, ok)
 	assert.Equal(t, adsb.IcaoId("1407C4"), id)
+}
+
+func Test7(t *testing.T) {
+	table := NewTable()
+	assert.Equal(t, 0, table.Length())
+
+	id, ok := table.Update("MSG,5,111,11111,42426B,111111,2020/05/05,21:31:00.000,2020/05/05,21:31:01.000,,,,,,,,,0,,0,0")
+	assert.Equal(t, 1, table.Length())
+	assert.Equal(t, true, ok)
+	assert.Equal(t, adsb.IcaoId("42426B"), id)
+
+	id, ok = table.Update("MSG,8,111,11111,1407C4,111111,2020/05/05,21:35:00.000,2020/05/05,21:35:01.000,,,,,,,,,,,,0")
+	assert.Equal(t, 2, table.Length())
+	assert.Equal(t, true, ok)
+	assert.Equal(t, adsb.IcaoId("1407C4"), id)
+
+	v, ok := table.Get("42426B")
+	assert.Equal(t, true, ok)
+	assert.Equal(t, adsb.IcaoId("42426B"), v.Icao24)
+
+	cutoff := v.GeneratedTimestampUTC
+
+	v, ok = table.Get("1407C4")
+	assert.Equal(t, true, ok)
+	assert.Equal(t, adsb.IcaoId("1407C4"), v.Icao24)
+
+	// age all entries before 2020/05/05 21:30:00
+	table.Age(cutoff.Add(time.Duration(-1 * time.Minute)))
+
+	v, ok = table.Get("42426B")
+	assert.Equal(t, true, ok)
+	assert.Equal(t, adsb.IcaoId("42426B"), v.Icao24)
+
+	v, ok = table.Get("1407C4")
+	assert.Equal(t, true, ok)
+	assert.Equal(t, adsb.IcaoId("1407C4"), v.Icao24)
+
+	// age all entries before 2020/05/05 21:32:00
+	table.Age(cutoff.Add(time.Duration(2 * time.Minute)))
+
+	v, ok = table.Get("42426B")
+	assert.Equal(t, false, ok)
+	assert.Equal(t, adsb.IcaoId(""), v.Icao24)
+
+	v, ok = table.Get("1407C4")
+	assert.Equal(t, true, ok)
+	assert.Equal(t, adsb.IcaoId("1407C4"), v.Icao24)
+
+	// age all entries before 2020/05/05 21:36:00
+	table.Age(cutoff.Add(time.Duration(5 * time.Minute)))
+
+	v, ok = table.Get("42426B")
+	assert.Equal(t, false, ok)
+	assert.Equal(t, adsb.IcaoId(""), v.Icao24)
+
+	v, ok = table.Get("1407C4")
+	assert.Equal(t, false, ok)
+	assert.Equal(t, adsb.IcaoId(""), v.Icao24)
 }

@@ -58,7 +58,8 @@ func main() {
 	adsb := make(chan string)
 	go handleADSB(adsb)
 
-	beat := time.NewTicker(10 * time.Second)
+	cutoff := time.Now()
+	beat := time.NewTicker(1 * time.Minute)
 
 EXIT:
 	for {
@@ -74,8 +75,9 @@ EXIT:
 				bot <- adsbLog.GetString(id)
 			}
 
-		case <-beat.C:
-			// TODO: age ADS-B table
+		case t := <-beat.C:
+			adsbLog.Age(cutoff)
+			cutoff = t
 		}
 	}
 }

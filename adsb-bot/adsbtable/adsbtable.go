@@ -162,5 +162,9 @@ func (tb *AdsbTable) Age(time time.Time) {
 	tb.syn.Lock()
 	defer tb.syn.Unlock()
 
-	/* TODO */
+	for id, rec := range tb.rec {
+		if rec.GeneratedTimestampUTC.Before(time) {
+			delete(tb.rec, id)
+		}
+	}
 }
