@@ -117,6 +117,9 @@ func dbusModem(conn *dbus.Conn, cmd string, modem string) {
 	case "ctx":
 		method = "org.ofono.ConnectionManager.GetContexts"
 		signature = "a(oa{sv})"
+	case "mon":
+		method = "org.ofono.NetworkMonitor.GetServingCellInformation"
+		signature = "a{sv}"
 	default:
 		fmt.Printf("Unknown modem command: %s\n", cmd)
 		return
@@ -229,6 +232,7 @@ func help(args []string) {
 	fmt.Printf("\t%s modem conn <name> - list modem connection properties\n", args[0])
 	fmt.Printf("\t%s modem reg <name> - list modem network registration properties\n", args[0])
 	fmt.Printf("\t%s modem ctx <name> - list modem network contexts\n", args[0])
+	fmt.Printf("\t%s modem mon <name> - list servicing cell basic measurements\n", args[0])
 	fmt.Printf("\t%s context enable <name> - enable network context\n", args[0])
 	fmt.Printf("\t%s context disable <name> - disable network context\n", args[0])
 }
