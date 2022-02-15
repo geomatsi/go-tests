@@ -1,0 +1,5 @@
+{
+    "temp": "/sys/devices/w1_bus_master1/28-00000a25cbc2/temperature",
+    "token": "TELEGRAM/BOT/TOKEN",
+    "chat" : 0
+}
