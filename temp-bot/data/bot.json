@@ -1,5 +1,8 @@
 {
-    "temp": "/sys/devices/w1_bus_master1/28-00000a25cbc2/temperature",
+    "temp": [
+	"/sys/devices/w1_bus_master1/28-00000a25cbc2/temperature",
+	"/sys/devices/w1_bus_master2/28-80000027a002/temperature"
+    ],
     "token": "TELEGRAM/BOT/TOKEN",
     "chat" : 0
 }

@@ -16,7 +16,7 @@ import (
 /* configuration */
 
 type testBotConfig struct {
-	Temp  string
+	Temp []string
 	Token string
 	Chat  int64
 }
@@ -101,11 +101,13 @@ func main() {
 				case "list":
 					fallthrough
 				case "status":
-					val, err := readTemp(testConf.Temp)
-					if err != nil {
-						reply.Text = "Failed to read temperature..."
-					} else {
-						reply.Text = fmt.Sprintf("%f", float32(val)/1000)
+					for i, s := range(testConf.Temp) {
+						val, err := readTemp(s)
+						if err != nil {
+							reply.Text += fmt.Sprintf("Failed to read temp%d...\n", i)
+						} else {
+							reply.Text += fmt.Sprintf("temp%d: %f\n", i, float32(val)/1000)
+						}
 					}
 				default:
 					reply.Text = "Not yet implemented..."
